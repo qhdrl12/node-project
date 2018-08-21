@@ -1,5 +1,5 @@
 {
-  "name": "generator-csv",
+  "name": "common-csv",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,8 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "csv-writer": "^1.0.0",
-    "progress": "^2.0.0"
+    "dateformat": "^3.0.3"
   },
   "devDependencies": {}
 }
