@@ -1,0 +1,17 @@
+{
+  "name": "csv-reader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "csv-parse": "^2.5.0",
+    "iconv-lite": "^0.4.23",
+    "jschardet": "^1.6.0"
+  },
+  "devDependencies": {}
+}
