@@ -15,6 +15,7 @@ let result = [];
 parser.on('readable', () => {
     while (record = parser.read()) {
         console.log(`record : ${JSON.stringify(record)}`);
+        outputStream.write(JSON.stringify(record) + '\n');
         // Object.keys(record).map((key, idx) => {
         //     if (key == 'ESTOPBRAKETIME') {
         //         record['ESTOPBRAKETIME'] = undefined;
@@ -29,6 +30,12 @@ parser.on('finish', () => {
     console.log(`finish`);
     console.log(result.length);
 
+    outputStream.end();
+    // readlineFunc();
+    // writeStreamResultRecords();
+})
+
+const readlineFunc = () => {
     let r = readline.createInterface({
         input: process.stdin,
         output: process.stdout
@@ -51,11 +58,7 @@ parser.on('finish', () => {
         r.prompt();
         total += count;
     });
-})
-
-let inputFile = '../generator/output/imsi.csv';
-
-let inputStream = fs.createReadStream(inputFile);
+}
 
 // const chardetStream = new Transform({
 //     //chunk 65536
@@ -65,7 +68,20 @@ let inputStream = fs.createReadStream(inputFile);
 //     }
 // });
 
+let inputFile = '../generator/output/imsi.csv';
+let inputStream = fs.createReadStream(inputFile);
+
+let outputFile = './output/json_imsi.csv';
+let outputStream = fs.createWriteStream(outputFile);
+
+outputStream.on('error', (err) => {
+    if (err) {
+        return console.log(`${err}`);
+    }
+});
+
 inputStream
     // .pipe(chardetStream) // transform 
-    // .pipe(parser); // csv-parser 
-    // .pipe(process.stdout);  // byline
+    .pipe(parser); // csv-parser 
+// .pipe(process.stdout);  // byline
+

@@ -63,6 +63,7 @@ let inputFile = './sample/2018-06-04.csv';
 let inputStream = fs.createReadStream(inputFile);
 
 const chardetStream = new Transform({
+    //chunk 65536
     transform(chunk, encoding, callback) {
         let enc = jschardet.detect(chunk);
         console.log('enc : ' + JSON.stringify(enc));
