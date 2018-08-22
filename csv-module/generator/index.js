@@ -1,24 +1,28 @@
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const ProgressBar = require('progress');
+const program = require('commander');
+const chalk = require('chalk');
 
 const csvConf = require('./config/csv-config.json');
-const colors = require('../common/colors');
-
 const kcity = require('./config/csv-mapper');
 
-const print = () => {
-    console.log("usage: ./generator-csv.js --max-old-space-size=8192");
-    colors.error("need change csv-config");
-    colors.error("             path : path/filename");
-    colors.error("             rows : generate row count");
-    colors.error("[info] this module can generate 200milion line");
-    colors.error("if need more generate line should be use 'file-writer-stream'");
+const checkMandatoryArgs = (option) => {
+    if (!program[option]) {
+        console.log(chalk.red(`--${option} required. process exit\nif you need more information use --help`));
+        process.exit(1);
+    }
 }
 
-if (process.argv[2] == 'help') {
-    print();
-    process.exit();
-}
+program
+    .version('0.1.0')
+    .option('-f, --file <file>', 'Add file')
+    .option('-r, --rows <rows>', 'Add rows')
+    .action((data) => {
+        // checkMandatoryArgs('file');
+        if (!program.file) program.file = csvConf.path;
+        if (!program.rows) program.rows = csvConf.rows;
+    })
+    .parse(process.argv);
 
 let headers = kcity.headers;
 
@@ -34,12 +38,17 @@ const giveHeaders = () => {
 const makeRecord = (rowCount) => {
     let records = [];
 
-    let bar = new ProgressBar(`${colors.c.FgGreen} processing [:bar] :current/:total :percent ${colors.c.Reset}`, {
+    let style = chalk.magenta('[:bar]')
+        + chalk.green(':rate/bps ')
+        + chalk.yellow(':current/:total :percent');
+
+    let bar = new ProgressBar(style, {
         complete: "=",
         incomplete: " ",
         width: 100,
         total: rowCount
     });
+
     for (let i = 0; i < rowCount; i++) {
         let record = {}
         let mandratoryMap = kcity.generatatorMandatoryMap();
@@ -60,23 +69,18 @@ const makeRecord = (rowCount) => {
     return records;
 }
 
-const records = makeRecord(csvConf.rows);
-
-// 생성한 records 전체 로그
-// records.forEach(r => {
-//     colors.info(`records  : ${JSON.stringify(r)}`);
-// });
+const records = makeRecord(parseInt(program.rows));
 
 let default_output_dir = 'output/';
 
 const csvWriter = createCsvWriter({
-    path: default_output_dir + csvConf.path,
+    path: default_output_dir + program.file,
     header: giveHeaders()
 });
 
 csvWriter.writeRecords(records)
     .then(() => {
-        colors.info("...Done");
+        console.log(chalk.cyan("\n...Done"));
     });
 
 /* with async
