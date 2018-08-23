@@ -1,28 +1,29 @@
 const dateFormat = require('dateformat');
 
-let instance;
-let DateSingleton = (function () {
-    function DateSingleton() {
-        this.date = new Date();
-    }
+let now = new Date();
+// let instance;
+// let DateSingleton = (function () {
+//     function DateSingleton() {
+//         this.date = new Date();
+//     }
 
-    DateSingleton.prototype.getDate = () => {
-        return this.date;
-    }
+//     DateSingleton.prototype.getDate = () => {
+//         return this.date;
+//     }
 
-    DateSingleton.prototype.generatorDatetime = (format, sec = 0) => {
-        let datetime = (sec == 0) ? dateFormat(new Date(), format) :
-            dateFormat(instance.date.setSeconds(instance.date.getSeconds() + sec), format);
-        return datetime;
-    }
+//     DateSingleton.prototype.generatorDatetime = (format, sec = 0) => {
+//         let datetime = (sec == 0) ? dateFormat(new Date(), format) :
+//             dateFormat(instance.date.setSeconds(instance.date.getSeconds() + sec), format);
+//         return datetime;
+//     }
 
-    return function () {
-        if (!instance) instance = new DateSingleton();
+//     return function () {
+//         if (!instance) instance = new DateSingleton();
 
-        console.log(`return function : ${JSON.stringify(instance.date)}`);
-        return instance;
-    }
-})();
+//         console.log(`return function : ${JSON.stringify(instance.date)}`);
+//         return instance;
+//     }
+// })();
 
 // /**
 //  * 최대 최소값 사이의 RANDOM 값을 구하기 위한 함수 
@@ -39,14 +40,20 @@ const generatorRandomNumber = (min, max) => {
 //  * @param {*} format (sample - yyyy/mm/dd hh:MM:ss)
 //  * @param {*} sec (default 0)
 //  */
-// const generatorDatetime = (format, sec = 0) => {
-//     let datetime = (sec == 0) ? dateFormat(new Date(), format) :
-//         dateFormat(now.setSeconds(now.getSeconds() + sec), format);
+const generatorDatetime = (format, sec = 0) => {
+    let datetime = (sec == 0) ? dateFormat(new Date(), format) :
+        dateFormat(now.setSeconds(now.getSeconds() + sec), format);
 
-//     return datetime;
-// }
+    return datetime;
+}
 
+const datetimechangeFormat = (format, date) => {
+    let datetime = dateFormat(date, format);
+
+    return datetime;
+}
 
 module.exports.generatorRandomNumber = generatorRandomNumber;
-// module.exports.generatorDatetime = generatorDatetime;
-module.exports.DateSingleton = DateSingleton;
+module.exports.generatorDatetime = generatorDatetime;
+module.exports.datetimechangeFormat = datetimechangeFormat;
+// module.exports.DateSingleton = DateSingleton;

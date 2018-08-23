@@ -1,11 +1,14 @@
 const fs = require('fs');
+const moment = require('moment');
 const cluster = require('cluster');
-const numCpus = require('os').cpus().length;
 const program = require('commander');
 const chalk = require('chalk');
+
+const numCpus = require('os').cpus().length;
 const kcity = require('./config/csv-mapper');
 
-let now = new Date();
+let now = moment();
+let count = 0;
 
 if (cluster.isMaster) {
     const checkMandatoryArgs = (option) => {
@@ -33,31 +36,22 @@ if (cluster.isMaster) {
 }
 
 const writeRecord = () => {
-    console.log(`Worker ${process.pid} write record`);
+    process.send({ cmd: 'increase' });
 
     let record = {}
-    let mandratoryMap = kcity.generatatorMandatoryMap();
+    let mandratoryMap = kcity.generatatorMandatoryMap(now);
 
     kcity.headers.map(item => {
         let v = mandratoryMap[item];
         record[item] = (v == undefined) ? '' : v;
     })
-    console.log(`${JSON.stringify(record)}\n`);
-    // outputStream.write(JSON.stringify(record) + '\n');
+
+
+    // console.log(`${JSON.stringify(record.ttime)}`);
+    // outputStream.write(JSON.stringify(record) + "\n");
 }
 
-const broadCast = () => {
-    if (cluster.isMaster) {
-        for (let id in cluster.workers) {
-            let worker = cluster.workers[id];
-            // worker.send({
-
-            // })
-        }
-    }
-}
-
-let outputFile = 'output/' + program.file;
+let outputFile = 'output/' + "imsi_stream.csv";
 let outputStream = fs.createWriteStream(outputFile);
 
 outputStream.on('error', (err) => {
@@ -81,22 +75,32 @@ if (cluster.isMaster) {
     console.log(`Master ${process.pid} is running`);
 
     for (let i = 0; i < program.cluster; i++) {
-        cluster.fork();
+        // cluster.fork();
+        let worker = cluster.fork();
+        worker.on('message', (msg) => {
+            if (msg.cmd == 'increase') {
+                now = now.add(1, 'seconds');
+                // console.log(`moment : ${now}`);
+                worker.send({ cmd: 'update', now: now });
+            }
+        });
     }
-
-    // broadCast();
 
     cluster.on('exit', (worker, code, signal) => {
         console.log(`worker ${worker.process.pid} died`);
     });
 } else { // worker process Logic
-    console.log(`Worker ${process.pid} started`);
+    // console.log(`Worker ${process.pid} started`);
+    process.send({ cmd: 'increase' });
 
-    // process.on('message', (message) => {
-    //     if (message.cmd == 'date') {
+    process.on('message', function (msg) {
+        if (msg.cmd == 'update') {
+            now = msg.now;
+            console.log(`now : ${now}`);
+        }
+    });
 
-    //     }
-    // })
+    setInterval(writeRecord, 1000);
 
-    setInterval(writeRecord, 2000);
+
 }

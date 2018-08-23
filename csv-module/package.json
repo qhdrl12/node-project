@@ -11,7 +11,8 @@
   "dependencies": {
     "chalk": "^2.4.1",
     "commander": "^2.17.1",
-    "dateformat": "^3.0.3"
+    "dateformat": "^3.0.3",
+    "moment": "^2.22.2"
   },
   "devDependencies": {}
 }
