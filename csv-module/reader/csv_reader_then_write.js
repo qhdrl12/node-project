@@ -16,6 +16,8 @@ parser.on('readable', () => {
     while (record = parser.read()) {
         console.log(`record : ${JSON.stringify(record)}`);
         outputStream.write(JSON.stringify(record) + '\n');
+
+        // 필요한 컬럼이 있다면 아래와 같은 방식으로 추가하여 사용
         // Object.keys(record).map((key, idx) => {
         //     if (key == 'ESTOPBRAKETIME') {
         //         record['ESTOPBRAKETIME'] = undefined;
@@ -60,14 +62,6 @@ const readlineFunc = () => {
     });
 }
 
-// const chardetStream = new Transform({
-//     //chunk 65536
-//     transform(chunk, encoding, callback) {
-//         console.log(`chunk data : ${chunk.length}`);
-//         callback(null, chunk);
-//     }
-// });
-
 let inputFile = '../generator/output/imsi.csv';
 let inputStream = fs.createReadStream(inputFile);
 
@@ -81,7 +75,6 @@ outputStream.on('error', (err) => {
 });
 
 inputStream
-    // .pipe(chardetStream) // transform 
     .pipe(parser); // csv-parser 
 // .pipe(process.stdout);  // byline
 
