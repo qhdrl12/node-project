@@ -5,12 +5,13 @@ const program = require('commander');
 const chalk = require('chalk');
 
 const numCpus = require('os').cpus().length;
-const kcity = require('./config/csv-mapper');
+const kcity = require('./config/csv-stream-mapper');
 
 let now = moment();
 let count = 0;
 
 if (cluster.isMaster) {
+
     const checkMandatoryArgs = (option) => {
         if (!program[option]) {
             console.log(chalk.red(`--${option} required. process exit\nif you need more information use --help`));
@@ -46,13 +47,11 @@ const writeRecord = () => {
         record[item] = (v == undefined) ? '' : v;
     })
 
-
-    // console.log(`${JSON.stringify(record.ttime)}`);
-    // outputStream.write(JSON.stringify(record) + "\n");
+    outputStream.write(JSON.stringify(record) + "\n");
 }
 
 let outputFile = 'output/' + "imsi_stream.csv";
-let outputStream = fs.createWriteStream(outputFile);
+let outputStream = fs.createWriteStream(outputFile, { flags: 'a' });
 
 outputStream.on('error', (err) => {
     if (err) {
@@ -80,7 +79,6 @@ if (cluster.isMaster) {
         worker.on('message', (msg) => {
             if (msg.cmd == 'increase') {
                 now = now.add(1, 'seconds');
-                // console.log(`moment : ${now}`);
                 worker.send({ cmd: 'update', now: now });
             }
         });
@@ -90,13 +88,12 @@ if (cluster.isMaster) {
         console.log(`worker ${worker.process.pid} died`);
     });
 } else { // worker process Logic
-    // console.log(`Worker ${process.pid} started`);
+    console.log(`Worker ${process.pid} started`);
     process.send({ cmd: 'increase' });
 
     process.on('message', function (msg) {
         if (msg.cmd == 'update') {
             now = msg.now;
-            console.log(`now : ${now}`);
         }
     });
 

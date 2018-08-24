@@ -2,9 +2,12 @@ const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const ProgressBar = require('progress');
 const program = require('commander');
 const chalk = require('chalk');
+const moment = require('moment');
 
 const csvConf = require('./config/csv-config.json');
 const kcity = require('./config/csv-mapper');
+
+let now = moment();
 
 const checkMandatoryArgs = (option) => {
     if (!program[option]) {
