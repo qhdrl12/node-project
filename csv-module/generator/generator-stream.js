@@ -9,6 +9,8 @@ const kcity = require('./config/csv-stream-mapper');
 
 let now = moment();
 let count = 0;
+let outputFile;
+let outputStream;
 
 if (cluster.isMaster) {
 
@@ -34,6 +36,9 @@ if (cluster.isMaster) {
             }
         })
         .parse(process.argv);
+
+    outputFile = 'output/' + program.file;
+    outputStream = fs.createWriteStream(outputFile, { flags: 'a' });
 }
 
 const writeRecord = () => {
@@ -50,24 +55,14 @@ const writeRecord = () => {
     outputStream.write(JSON.stringify(record) + "\n");
 }
 
-let outputFile = 'output/' + "imsi_stream.csv";
-let outputStream = fs.createWriteStream(outputFile, { flags: 'a' });
+
+// let outputFile = 'output/' + program.file;
+// let outputStream = fs.createWriteStream(outputFile, { flags: 'a' });
 
 outputStream.on('error', (err) => {
     if (err) {
         return console.log(`${err}`);
     }
-});
-
-process.on('SIGINT', function () {
-    if (cluster.isMaster) {
-        console.log(chalk.red("Caught interrupt signal"));
-        console.log(chalk.cyan("outputStream.end()"));
-        outputStream.end();
-        console.log(chalk.cyan("outputStream.close()"));
-        outputStream.close();
-    }
-    process.exit();
 });
 
 if (cluster.isMaster) {
@@ -82,6 +77,8 @@ if (cluster.isMaster) {
                 worker.send({ cmd: 'update', now: now });
             }
         });
+
+        worker.send({ cmd: 'file', file: program.file });
     }
 
     cluster.on('exit', (worker, code, signal) => {
@@ -94,10 +91,26 @@ if (cluster.isMaster) {
     process.on('message', function (msg) {
         if (msg.cmd == 'update') {
             now = msg.now;
+        } else if (msg.cmd == 'file') {
+            outputFile = 'output/' + msg.file;
+            outputStream = fs.createWriteStream(outputFile, { flags: 'a' });
+
         }
     });
 
     setInterval(writeRecord, 1000);
-
-
 }
+
+
+
+process.on('SIGINT', function () {
+    if (cluster.isMaster) {
+        console.log(chalk.red("Caught interrupt signal"));
+        console.log(chalk.cyan("outputStream.end()"));
+        outputStream.end();
+        console.log(chalk.cyan("outputStream.close()"));
+        outputStream.close();
+    }
+
+    process.exit();
+});

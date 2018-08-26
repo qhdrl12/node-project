@@ -39,8 +39,6 @@ inquirer.prompt([
     nowConfig = nowConfig[answers.file];
     runDir += answers.file + "/";
 
-    console.log(`\nHi ${answers.file}. I like ${answers.iceCream} ice cream too! \n`);
-
     let isDir = fs.lstatSync(baseDir + answers.file).isDirectory();
 
     if (isDir) {
