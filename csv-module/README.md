@@ -1,6 +1,6 @@
 # How to use
-## Run code
----
+
+## Run 
 ```shell
     $ npm install
     $ node sample_inquirer.js 
