@@ -59,11 +59,11 @@ const writeRecord = () => {
 // let outputFile = 'output/' + program.file;
 // let outputStream = fs.createWriteStream(outputFile, { flags: 'a' });
 
-outputStream.on('error', (err) => {
-    if (err) {
-        return console.log(`${err}`);
-    }
-});
+// outputStream.on('error', (err) => {
+//     if (err) {
+//         return console.log(`${err}`);
+//     }
+// });
 
 if (cluster.isMaster) {
     console.log(`Master ${process.pid} is running`);
@@ -94,7 +94,6 @@ if (cluster.isMaster) {
         } else if (msg.cmd == 'file') {
             outputFile = 'output/' + msg.file;
             outputStream = fs.createWriteStream(outputFile, { flags: 'a' });
-
         }
     });
 
