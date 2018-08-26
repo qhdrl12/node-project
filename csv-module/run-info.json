@@ -1,0 +1,12 @@
+{
+    "generator": {
+        "index.js": {
+            "-f": "file name",
+            "-r": "total rows"
+        },
+        "generator-stream.js": {
+            "-f": "file name",
+            "-c": "cluster count"
+        }
+    }
+}
