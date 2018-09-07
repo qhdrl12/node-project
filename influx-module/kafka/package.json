@@ -1,0 +1,14 @@
+{
+  "name": "influx-kafka",
+  "version": "1.0.0",
+  "description": "kafka",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "bong",
+  "license": "ISC",
+  "dependencies": {
+    "influx": "^5.0.7"
+  }
+}

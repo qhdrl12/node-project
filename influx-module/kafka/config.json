@@ -1,0 +1,14 @@
+{
+    "development": {
+        "kafka": {
+            "host": "192.168.7.35",
+            "database": "grafana"
+        }
+    },
+    "production": {
+        "kafka": {
+            "host": "192.168.7.28",
+            "database": "grafana"
+        }
+    }
+}
