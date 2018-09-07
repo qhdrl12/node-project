@@ -4,9 +4,15 @@
             "-f": "file name",
             "-r": "total rows"
         },
-        "generator-stream.js": {
+        "generator_stream.js": {
             "-f": "file name",
             "-c": "cluster count"
+        }
+    },
+    "reader": {
+        "csv_reader_then_write.js": {
+            "-r": "read file name",
+            "-w": "write file name"
         }
     }
 }

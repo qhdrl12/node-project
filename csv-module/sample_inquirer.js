@@ -99,6 +99,9 @@ const runScriptWithOptions = (filename, options) => {
 
     exec(runScript, (error, stdout, stderr) => {
         console.log(`stdout : ${stdout}`);
+        if (error) {
+            console.log(`stderr : ${stderr}`);
+        }
     });
 }
 

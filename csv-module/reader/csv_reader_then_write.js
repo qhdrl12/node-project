@@ -1,8 +1,9 @@
 ﻿const fs = require('fs');
 const parse = require('csv-parse');
-const { Transform } = require('stream');
-
 const readline = require('readline');
+
+const program = require('commander');
+const chalk = require('chalk');
 
 const parser = parse({
     delimiter: ',',
@@ -10,62 +11,50 @@ const parser = parse({
     columns: true
 });
 
-let result = [];
+let count = 0;
+
+program
+    .version('0.1.0')
+    .option('-r, --rfile <rfile>', 'Add input file')
+    .option('-w, --wfile <wfile>', 'Add output file')
+    .action(data => {
+        if (!program.rfile) program.rfile = '../generator/output/imsi.csv';
+        if (!program.wfile) program.wfile = './output/json_imsi.csv';
+
+        console.log(`read file > ${program.rfile}`);
+        console.log(`write file > ${program.wfile}`);
+    })
+    .parse(process.argv);
 
 parser.on('readable', () => {
     while (record = parser.read()) {
-        console.log(`record : ${JSON.stringify(record)}`);
-        outputStream.write(JSON.stringify(record) + '\n');
+        // console.log(`record : ${JSON.stringify(record)}`);
+        // record['location'] = {
+        //     lat: record['LAT'],
+        //     lon: record['LON']
+        // }
 
-        // 필요한 컬럼이 있다면 아래와 같은 방식으로 추가하여 사용
+        outputStream.write(JSON.stringify(record) + '\n');
+        // 필요한 컬럼이 있다면 아래와 같은 방식으로 추가하여 사용(수정 등)
         // Object.keys(record).map((key, idx) => {
         //     if (key == 'ESTOPBRAKETIME') {
         //         record['ESTOPBRAKETIME'] = undefined;
         //         console.log(`readable record : ${JSON.stringify(record)}`);
         //     }
         // });
-        result.push(record);
+        count++;
     };
 });
 
 parser.on('finish', () => {
-    console.log(`finish`);
-    console.log(result.length);
-
+    console.log(`finish total size ${count}`);
     outputStream.end();
-    // readlineFunc();
-    // writeStreamResultRecords();
 })
 
-const readlineFunc = () => {
-    let r = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-
-    let total = 0;
-
-    r.setPrompt("> ");
-    r.prompt();
-
-    r.on("line", (data) => {
-        if (data == 'exit') r.close();
-
-        let count = parseInt(data);
-
-        for (let i = total; i < total + count; i++) {
-            console.log(`check data : ${JSON.stringify(result[i])}`);
-        }
-
-        r.prompt();
-        total += count;
-    });
-}
-
-let inputFile = '../generator/output/imsi.csv';
+let inputFile = program.rfile;
 let inputStream = fs.createReadStream(inputFile);
 
-let outputFile = './output/json_imsi.csv';
+let outputFile = program.wfile;
 let outputStream = fs.createWriteStream(outputFile);
 
 outputStream.on('error', (err) => {
