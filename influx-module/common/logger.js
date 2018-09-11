@@ -21,15 +21,15 @@ let winstonConsole = new winston.transports.Console({
     timestamp: logDate
 });
 
-let setConsoleAndRotateLog = (filename) => {
-    return [
-        winstonConsole,
-        new dailyRotateFile({
-            colorize: true,
-            timestamp: logDate,
-            filename: filename
-        })];
-}
+// let setConsoleAndRotateLog = (filename) => {
+//     return [
+//         winstonConsole,
+//         new dailyRotateFile({
+//             colorize: false,
+//             timestamp: logDate,
+//             filename: filename
+//         })];
+// }
 
 logger.init = (system, filename) => {
     let logPath = path.join(baseDirPath, system);
@@ -39,16 +39,38 @@ logger.init = (system, filename) => {
     }
 
     logger.configure({
-        level: 'verbose',
         format: winston.format.combine(
             winston.format.timestamp(),
             winston.format.label({ label: system }),
             winston.format.printf(info => {
+                if (info.stack != undefined) info.message += info.stack;
                 return `${info.timestamp} [${info.level.toUpperCase()}] ${info.label} - ${info.message}`;
             })
         ),
-        transports: setConsoleAndRotateLog(path.join(logPath, `${filename}.log`)),
-        exceptionHandlers: setConsoleAndRotateLog(path.join(logPath, `${filename}-exception.log`))
+        // transports: setConsoleAndRotateLog(path.join(logPath, `${filename}.log`)),
+        transports: [
+            winstonConsole,
+            new dailyRotateFile({
+                level: 'info',
+                colorize: false,
+                timestamp: logDate,
+                filename: path.join(logPath, `${filename}.log`),
+            }),
+            new dailyRotateFile({
+                level: 'error',
+                colorize: false,
+                timestamp: logDate,
+                filename: path.join(logPath, `${filename}-error.log`),
+            })
+        ],
+        //todo uncaughtException not working...
+        exceptionHandlers: [
+            new dailyRotateFile({
+                colorize: false,
+                timestamp: logDate,
+                filename: path.join(logPath, `${filename}-exception.log`),
+            })
+        ]
     });
 }
 
